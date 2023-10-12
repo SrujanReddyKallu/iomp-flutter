@@ -122,6 +122,8 @@ class _LoginScreenState extends State<LoginScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
+                    Text("Image Caption Generator",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.redAccent),),
+                    SizedBox(height: 80,),
                     SizedBox(
                         height: 200,
                         child: Image.asset(

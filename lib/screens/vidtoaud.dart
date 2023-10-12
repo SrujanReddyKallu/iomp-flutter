@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'dart:convert';
 
+import 'package:iomp/screens/login.dart';
+
 
 class ImagePickerExample extends StatefulWidget {
   //const ImagePickerExample({super.key});
@@ -34,6 +36,9 @@ class _ImagePickerExampleState extends State<ImagePickerExample> {
   }
 
   Future<void> _sendImageToServer(File image) async {
+    setState(() {
+      responseText = null;
+    });
     var uri = Uri.parse("http://34.227.89.166:5000/predict");
 
     var request = http.MultipartRequest('POST', uri)
@@ -49,7 +54,7 @@ class _ImagePickerExampleState extends State<ImagePickerExample> {
 
     if (response.statusCode == 200) {
       var responseBody = await response.stream.bytesToString();
-      var decodedResponse=jsonDecode(responseBody);
+      var decodedResponse = jsonDecode(responseBody);
       // Update the UI with the response.
       setState(() {
         responseText = decodedResponse['result'];
@@ -61,102 +66,107 @@ class _ImagePickerExampleState extends State<ImagePickerExample> {
 
   @override
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Image Picker Example'),
+        title: const Text('Image Caption Generator'),
+        actions: <Widget>[
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()));
+            },
+            child: Text('Logout'),
+          ),
+        ],
       ),
-      body: SingleChildScrollView(  // <-- Added this
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: _image == null
-                  ? const Text('No image selected.')
-                  : Image.file(_image!),
-            ),
-            const SizedBox(height: 16.0),
-            if (responseText != null)
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  '$responseText',
-                  textAlign: TextAlign.center,
-                ),
+      body: Padding( // <-- Added Padding here
+        padding: const EdgeInsets.fromLTRB(20, 100, 20, 100),
+        // <-- Specify your desired padding value here
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(
+                child: _image == null
+                    ? const Text('No image selected.')
+                    : Image.file(_image!),
               ),
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Select an image'),
-                      content: SingleChildScrollView(
-                        child: ListBody(
-                          children: [
-                            GestureDetector(
-                              child: const Text('Pick from gallery'),
-                              onTap: () {
-                                _pickImage(ImageSource.gallery);
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            const SizedBox(height: 16.0),
-                            GestureDetector(
-                              child: const Text('Take a photo'),
-                              onTap: () {
-                                _pickImage(ImageSource.camera);
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
+              const SizedBox(height: 16.0),
+              if (responseText != null)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8.0),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 5.0,
+                          offset: Offset(0, 2),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-              child: const Text('Upload & Predict'),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Select an image'),
-                content: SingleChildScrollView(
-                  child: ListBody(
-                    children: [
-                      GestureDetector(
-                        child: const Text('Pick from gallery'),
-                        onTap: () {
-                          _pickImage(ImageSource.gallery);
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      const SizedBox(height: 16.0),
-                      GestureDetector(
-                        child: const Text('Take a photo'),
-                        onTap: () {
-                          _pickImage(ImageSource.camera);
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.message, color: Colors.blue),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            '$responseText',
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueGrey,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              );
-            },
-          );
-        },
-        tooltip: 'Pick Image',
-        child: const Icon(Icons.add_a_photo),
+              ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Select an image'),
+                        content: SingleChildScrollView(
+                          child: ListBody(
+                            children: [
+                              GestureDetector(
+                                child: const Text('Pick from gallery'),
+                                onTap: () {
+                                  _pickImage(ImageSource.gallery);
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              const SizedBox(height: 16.0),
+                              GestureDetector(
+                                child: const Text('Take a photo'),
+                                onTap: () {
+                                  _pickImage(ImageSource.camera);
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+                child: const Text('Upload & Predict'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
-
