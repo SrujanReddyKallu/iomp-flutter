@@ -39,7 +39,7 @@ class _ImagePickerExampleState extends State<ImagePickerExample> {
     setState(() {
       responseText = null;
     });
-    var uri = Uri.parse("http://34.227.89.166:5000/predict");
+    var uri = Uri.parse("http://52.91.118.102:5000/predict");
 
     var request = http.MultipartRequest('POST', uri)
       ..files.add(
