@@ -63,7 +63,7 @@ class _ImagePickerExampleState extends State<ImagePickerExample> {
       setState(() {
         _isLoading = false; // <-- Stop loading
       });
-      print("Image upload failed with status code ${response.statusCode}");
+      print("Image upload failed with status code1 ${response.statusCode}");
     }
   }
 
