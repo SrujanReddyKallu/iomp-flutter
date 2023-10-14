@@ -7,10 +7,7 @@ import 'dart:convert';
 
 import 'package:iomp/screens/login.dart';
 
-
 class ImagePickerExample extends StatefulWidget {
-  //const ImagePickerExample({super.key});
-
   @override
   _ImagePickerExampleState createState() => _ImagePickerExampleState();
 }
@@ -18,6 +15,7 @@ class ImagePickerExample extends StatefulWidget {
 class _ImagePickerExampleState extends State<ImagePickerExample> {
   File? _image;
   String? responseText;
+  bool _isLoading = false; // <-- Add this line for loading state
 
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
@@ -37,14 +35,16 @@ class _ImagePickerExampleState extends State<ImagePickerExample> {
 
   Future<void> _sendImageToServer(File image) async {
     setState(() {
+      _isLoading = true; // <-- Start loading
       responseText = null;
     });
+
     var uri = Uri.parse("http://52.91.118.102:5000/predict");
 
     var request = http.MultipartRequest('POST', uri)
       ..files.add(
         await http.MultipartFile.fromPath(
-          'file', // 'file' is the field name on the server endpoint
+          'file',
           image.path,
           contentType: MediaType('image', 'jpeg'),
         ),
@@ -55,17 +55,18 @@ class _ImagePickerExampleState extends State<ImagePickerExample> {
     if (response.statusCode == 200) {
       var responseBody = await response.stream.bytesToString();
       var decodedResponse = jsonDecode(responseBody);
-      // Update the UI with the response.
       setState(() {
+        _isLoading = false; // <-- Stop loading
         responseText = decodedResponse['result'];
       });
     } else {
+      setState(() {
+        _isLoading = false; // <-- Stop loading
+      });
       print("Image upload failed with status code ${response.statusCode}");
     }
   }
 
-  @override
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,15 +82,16 @@ class _ImagePickerExampleState extends State<ImagePickerExample> {
           ),
         ],
       ),
-      body: Padding( // <-- Added Padding here
+      body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 100, 20, 100),
-        // <-- Specify your desired padding value here
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Center(
-                child: _image == null
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : _image == null
                     ? const Text('No image selected.')
                     : Image.file(_image!),
               ),
